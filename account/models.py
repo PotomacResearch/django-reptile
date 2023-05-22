@@ -16,4 +16,5 @@ class User(AbstractUser):
         "account.Account",
         models.CASCADE,
         related_name="users",
+        null=True,   # For superusers only
     )
