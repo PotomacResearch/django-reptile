@@ -7,27 +7,9 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-<body class="d-flex h-100 text-center text-white bg-dark">
-  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <header class="mb-auto">
-      <div>
-        <h3 class="float-md-start mb-0">Company Name</h3>
-        <nav class="nav nav-masthead justify-content-center float-md-end">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-          <a class="nav-link" href="#">Features</a>
-          <a class="nav-link" href="#">Contact</a>
-		  <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-        </nav>
-      </div>
-    </header>
-
+<body>
 	{% block body %}
 	{% endblock %}
-
-    <footer class="mt-auto text-white-50">
-      <p>© 2023 Company, Inc.</p>
-    </footer>
-  </div>
 </body>
 
 {% else %}
@@ -43,7 +25,7 @@
     </header>
 
     <footer class="mt-auto text-white-50">
-      <p>© 2023 Company, Inc.</p>
+      <p>© {% now "Y" %} Potomac Research, LLC</p>
     </footer>
   </div>
 </body>

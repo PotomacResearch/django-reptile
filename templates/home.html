@@ -4,36 +4,50 @@
 
 {% block title %}Home{% endblock %}
 
+{% block head_content %}
+<style>
+    body, html {
+      height: 100%;
+    }
+
+    /* Flex container to handle page layout */
+    .d-flex-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Content wrapper to push footer to the bottom */
+    .content-wrapper {
+      flex: 1;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <body class="d-flex h-100 text-center text-white bg-dark">
-  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column d-flex-wrapper">
     <header class="mb-auto">
       <div>
-        <h3 class="float-md-start mb-0">Company Name</h3>
+        <h3 class="float-md-start mb-0">Reptile by Potomac Research, LLC</h3>
         <nav class="nav nav-masthead justify-content-center float-md-end">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-          <a class="nav-link" href="#">Features</a>
-          <a class="nav-link" href="#">Contact</a>
 		  {% if user.is_authenticated %}
-		    <a class="nav-link" href="{% url 'dashboard' %}">Dashboad</a>
+		    <a class="nav-link active" href="{% url 'dashboard' %}">Dashboad</a>
 		  {% else %}
-		    <a class="nav-link" href="{% url 'login' %}">Log In</a>
+		    <a class="nav-link active" href="{% url 'login' %}">Log In</a>
 		  {% endif %}
         </nav>
       </div>
     </header>
 
     <main class="px-3">
-      <h1>Welcome to our website</h1>
-      <p class="lead">This is a simple cover page made with Bootstrap 5.</p>
-      <p class="lead">
-        <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
-      </p>
+      <h1>Welcome to Reptile</h1>
+      <p class="lead">Please contact us to get login information, and then click the "Log In" link above.</p>
     </main>
 
     <footer class="mt-auto text-white-50">
-      <p>© 2023 Company, Inc.</p>
+      <p>© {% now "Y" %} Potomac Research, LLC</p>
     </footer>
   </div>
 </body>
