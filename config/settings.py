@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'huey.contrib.djhuey',
     'django_bootstrap5',
 
     'account',
@@ -136,3 +137,33 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Huey settings
+# Look into huey-django-orm at some point
+#    https://github.com/avryhof/huey_django_orm/blob/main/README.md
+HUEY = {
+    'huey_class': 'huey.SqliteHuey',  # Huey implementation to use.
+    'name': 'djrep',
+    'results': True,  # Store return values of tasks.
+    'store_none': False,  # If a task returns None, do not save to results.
+    #'immediate': DEBUG,  # If DEBUG=True, run synchronously.
+    'immediate': False,  # If DEBUG=True, run synchronously.
+    'utc': True,  # Use UTC for all times internally.
+    #'blocking': True,  # Perform blocking pop rather than poll Redis.
+    'connection': {
+        'filename': BASE_DIR / 'db.huey',
+    },
+    'consumer': {
+        'workers': 2,
+#        'worker_type': 'process',    # process not supported on Windows
+        'worker_type': 'thread',
+        'initial_delay': 0.1,  # Smallest polling interval, same as -d.
+        'backoff': 1.15,  # Exponential backoff using this rate, -b.
+        'max_delay': 10.0,  # Max possible polling interval, -m.
+        'scheduler_interval': 1,  # Check schedule every second, -s.
+        'periodic': True,  # Enable crontab feature.
+        'check_worker_health': True,  # Enable worker health checks.
+        'health_check_interval': 5,  # Check worker health every second.
+    },
+}
