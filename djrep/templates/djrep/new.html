@@ -1,0 +1,19 @@
+{% extends 'loggedin.html' %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}New Run{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+    	<div class="col-12">
+		  <form method="post">
+			{% csrf_token %}
+			{% bootstrap_form form %}
+			{% bootstrap_button button_type="submit" content="Start New Task" %}
+		  </form>
+		</div>
+    </div>
+
+{% endblock %}

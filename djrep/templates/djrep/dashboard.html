@@ -5,25 +5,8 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
-<div class="container">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Dashboard</a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">User Administration</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
     <div class="row">
-        <div class="col-lg-4 mb-4">
+        <div class="col-lg-6 mb-4">
             <h2>Messages</h2>
             {% for message in messages %}
                 <div class="card mb-2">
@@ -35,22 +18,42 @@
             {% endfor %}
         </div>
 
-        <div class="col-lg-4 mb-4">
-            <h2>Previous Runs</h2>
-            {% for run in previous_runs %}
-                <div class="card mb-2">
-                    <div class="card-body">
-                        Run ID: {{ run.id }}<br/>
-                        Start Time: {{ run.start_time }}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <div class="col-lg-4 mb-4">
+        <div class="col-lg-6 mb-4">
             <h2>Create New Run</h2>
-            <a href="#" class="btn btn-primary">Create New Run</a>
+            <a href="{% url 'new' %}" class="btn btn-primary">Create New Run</a>
         </div>
+    </div>
+
+	<div class="row">
+		<h2>Runs</h2>
+	</div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created</th>
+                <th scope="col">Started</th>
+                <th scope="col">Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in trainings %}
+            <tr>
+                <td>{{ t.id }}: {{ t.name }}</td>
+                <td>{{ t.created }}</td>
+                <td>{{ t.started|default:"--"  }}</td>
+                <td>{{ t.completed|default:"--" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+	<div class="row">
+		<div class="col-12">
+			&nbsp;
+		</div>
     </div>
 
     <div class="row">
@@ -76,9 +79,4 @@
             </div>
         </div>
     </div>
-</div>
-
-<footer class="mt-auto text-white-50">
-  <p>© {% now "Y" %} Potomac Research, LLC</p>
-</footer>
 {% endblock %}
