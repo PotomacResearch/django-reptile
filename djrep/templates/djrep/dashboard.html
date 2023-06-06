@@ -40,7 +40,11 @@
         <tbody>
             {% for t in trainings %}
             <tr>
-                <td>{{ t.id }}: {{ t.name }}</td>
+                <td>
+                	<a href="{% url 'view' t.pk %}">
+						{{ t.id }}: {{ t.name }}
+					</a>
+                </td>
                 <td>{{ t.created }}</td>
                 <td>{{ t.started|default:"--"  }}</td>
                 <td>{{ t.completed|default:"--" }}</td>
@@ -57,18 +61,6 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-6 mb-4">
-            <h2>Runs in Progress</h2>
-            {% for run in running_runs %}
-                <div class="card mb-2">
-                    <div class="card-body">
-                        Run ID: {{ run.id }}<br/>
-                        Start Time: {{ run.start_time }}
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
         <div class="col-lg-6 mb-4">
             <h2>Statistics</h2>
             <div class="card">

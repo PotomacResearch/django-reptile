@@ -1,0 +1,28 @@
+{% extends 'loggedin.html' %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}View Object{% endblock %}
+
+{% block body %}
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created</th>
+                <th scope="col">Started</th>
+                <th scope="col">Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ object.id }}: {{ object.name }}</td>
+                <td>{{ object.created }}</td>
+                <td>{{ object.started|default:"--"  }}</td>
+                <td>{{ object.completed|default:"--" }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}

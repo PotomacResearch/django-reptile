@@ -1,19 +1,15 @@
-from huey.contrib.djhuey import db_task
 from time import sleep
-from djrep.models import ReptileTraining
-from django.utils.timezone import now
+from huey.contrib.djhuey import task
+
+from djrep.task_helpers import start_training,complete_training
 
 
-@db_task()
-def run_dummy_task(seconds, name, pk):
-    training_obj = ReptileTraining.objects.get(pk=pk)
+@task()
+def run_dummy_task(reptile_training_id):
+    task_name = start_training(reptile_training_id)
 
-    training_obj.started = now()
-    for i in range(seconds):
-        print(f'-- {name} waited {i} seconds --')
+    for i in range(10):
+        print(f'-- {task_name} waited {i} seconds --')
         sleep(1)
 
-
-    training_obj.completed = now()
-    training_obj.save()
-
+    complete_training(reptile_training_id)

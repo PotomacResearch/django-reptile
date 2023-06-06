@@ -145,14 +145,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 HUEY = {
     'huey_class': 'huey.SqliteHuey',  # Huey implementation to use.
     'name': 'djrep',
-    'results': True,  # Store return values of tasks.
+    'results': False,  # Store return values of tasks.
     'store_none': False,  # If a task returns None, do not save to results.
     #'immediate': DEBUG,  # If DEBUG=True, run synchronously.
     'immediate': False,  # If DEBUG=True, run synchronously.
     'utc': True,  # Use UTC for all times internally.
     #'blocking': True,  # Perform blocking pop rather than poll Redis.
     'connection': {
-        'filename': BASE_DIR / 'db.huey',
+        #'filename': BASE_DIR / 'db.huey',
     },
     'consumer': {
         'workers': 2,

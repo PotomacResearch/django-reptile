@@ -14,6 +14,6 @@ class ReptileTrainingForm(ModelForm):
 
         if commit:
             instance.save()
-            run_dummy_task(10, instance.name, instance.id)
+            run_dummy_task(instance.id)
 
         return instance
