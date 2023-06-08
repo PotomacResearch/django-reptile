@@ -165,3 +165,7 @@ cython_debug/
 
 # Huey
 huey.db*
+
+# Reptile stuff
+sine_library/
+sine_reptile/

@@ -32,6 +32,7 @@
         <thead>
             <tr>
                 <th scope="col">Name</th>
+                <th scope="col">Type</th>
                 <th scope="col">Created</th>
                 <th scope="col">Started</th>
                 <th scope="col">Completed</th>
@@ -45,6 +46,7 @@
 						{{ t.id }}: {{ t.name }}
 					</a>
                 </td>
+                <td>{{ t.type }}</td>
                 <td>{{ t.created }}</td>
                 <td>{{ t.started|default:"--"  }}</td>
                 <td>{{ t.completed|default:"--" }}</td>
