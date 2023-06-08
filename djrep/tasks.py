@@ -1,5 +1,6 @@
-from time import sleep
 from huey.contrib.djhuey import task
+
+from reptile import toysystems
 
 from djrep.task_helpers import start_training,complete_training
 
@@ -8,8 +9,7 @@ from djrep.task_helpers import start_training,complete_training
 def run_dummy_task(reptile_training_id):
     task_name = start_training(reptile_training_id)
 
-    for i in range(10):
-        print(f'-- {task_name} waited {i} seconds --')
-        sleep(1)
+    library = toysystems.sine_example()
+    print(f'{task_name} completed training sine: {library}')
 
     complete_training(reptile_training_id)
