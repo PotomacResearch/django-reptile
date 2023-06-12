@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.models import ModelForm
 from djrep.models import ReptileTraining
-from djrep.tasks import run_dummy_task
+from djrep.tasks import run_training_task
 from djrep.types import ReptileTypes
 from math import pi
 
@@ -19,7 +19,7 @@ class ReptileTrainingForm(ModelForm):
 
     class Meta:
         model = ReptileTraining
-        fields = ["name", "type"]
+        fields = ["name", "type", "data_file"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,13 +42,17 @@ class ReptileTrainingForm(ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
 
-        instance.params = {f: self.cleaned_data[f] for f in
+        instance.params = {
+            'esn': {},
+            'autoencoder': {},
+            }
+        instance.params['library'] = {f: self.cleaned_data[f] for f in
            ['num_series', 'length_series', 'amplitude_low', 'amplitude_high',
             'frequency_low', 'frequency_high', 'phase_low', 'phase_high',
         ]}
 
         if commit:
             instance.save()
-            run_dummy_task(instance.id)
+            run_training_task(instance.id)
 
         return instance

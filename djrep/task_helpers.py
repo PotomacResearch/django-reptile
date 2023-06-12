@@ -30,13 +30,17 @@ def start_training(reptile_training_id: int
     training_obj.started = now()
     training_obj.save()
 
-    return (training_obj.name, training_obj.type, training_obj.params)
+    return (training_obj.name, training_obj.type,
+            training_obj.params['library'],
+            training_obj.params['esn'],
+            training_obj.params['autoencoder'],
+            training_obj.data_file.file if training_obj.data_file else None)
 
 
 @manage_db_connection
-def complete_training(reptile_training_id: int) -> None:
+def save_training(reptile_training_id: int) -> None:
     """
-    Marks the training process complete
+    Marks the training process complete and save the results
     """
     training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
     training_obj.completed = now()

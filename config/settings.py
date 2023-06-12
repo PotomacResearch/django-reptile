@@ -139,6 +139,10 @@ STATIC_ROOT = BASE_DIR / 'static'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # Huey settings
 # Look into huey-django-orm at some point
 #    https://github.com/avryhof/huey_django_orm/blob/main/README.md

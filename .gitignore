@@ -169,3 +169,6 @@ huey.db*
 # Reptile stuff
 sine_library/
 sine_reptile/
+
+# Uploads
+media/*
