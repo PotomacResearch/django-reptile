@@ -32,4 +32,42 @@
         </tbody>
     </table>
 
+    <br />
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Step</th>
+                <th scope="col">Performance Graph</th>
+                <th scope="col">Performance Stats</th>
+            </tr>
+        </thead>
+        <tbody>
+        	<tr>
+        		<td>ESN</td>
+        		<td>
+        			{% if esn_graph_image|length %}
+					<img src="data:image/png;base64,{{ esn_graph_image }}"
+						 alt="ESN Performance Graph">
+					{% else %}
+						ESN performance graph not available.
+					{% endif %}
+        		</td>
+        		<td></td>
+        	</tr>
+        	<tr>
+        		<td>Autoencoder</td>
+        		<td>
+        			{% if autoencoder_graph_image|length %}
+					<img src="data:image/png;base64,{{ autoencoder_graph_image }}"
+						 alt="Autoencoder Performance Graph">
+					{% else %}
+						Autoencoder performance graph not available.
+					{% endif %}
+        		</td>
+        		<td></td>
+        	</tr>
+        </tbody>
+    </table>
+
 {% endblock %}

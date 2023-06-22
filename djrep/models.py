@@ -1,4 +1,8 @@
+from pathlib import Path
+
 from django.db import models
+from django.conf import settings
+
 from djrep.types import ReptileTypes
 
 
@@ -21,6 +25,9 @@ class ReptileTraining(models.Model):
         related_name="trainings",
     )
 
-
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def get_base_save_path(reptile_training_id: int) -> Path:
+        return Path(settings.MEDIA_ROOT) / f'{reptile_training_id}'

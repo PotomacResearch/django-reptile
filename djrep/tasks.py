@@ -6,6 +6,7 @@ from django.conf import settings
 from djrep.task_helpers import start_training, save_training, update_status
 from djrep.types import ReptileTypes
 from pathlib import Path
+from djrep.models import ReptileTraining
 
 
 @task()
@@ -29,7 +30,7 @@ def run_training_task(reptile_training_id: int) -> None:
     (task_name, task_type, task_params, esn_params, autoencoder_params,
         csv_file) = start_training(reptile_training_id)
 
-    base_path = Path(settings.MEDIA_ROOT) / f'{reptile_training_id}'
+    base_path = ReptileTraining.get_base_save_path(reptile_training_id)
     os.makedirs(base_path, exist_ok=True)
 
     if csv_file:
@@ -71,28 +72,28 @@ def run_training_task(reptile_training_id: int) -> None:
         autoencoder = Autoencoder(**default_autoencoder_params)
         reptile = RepTiLe(library, esn, autoencoder, 't')
 
-        # Again, figure out a way to save the progress
         reptile.save(str(base_path / 'sine_reptile'), False)
 
-        update_status(reptile_training_id, "Created RepTile, training ESN")
 
         # Trains the ESN on each library member and accumulates weight matrices
+        update_status(reptile_training_id, "Created RepTile, training ESN")
         reptile.train_library(transient_length=100, reg=1e-1)
 
         # Runs a prediction on each library member, compare to original
         update_status(reptile_training_id, "Trained ESN, checking performance")
         _ = reptile.diagnose_library(num_diagnose_series=10,
-                                 plot_summary=True,
-                                 save_dir=str(base_path / 'reptile_diagnose'))
+                             plot_members=True,
+                             plot_summary=True,
+                             save_dir=str(base_path / 'reptile_esn_diagnose'))
 
-        """
-        reptile.add_note('Optimized the ESN')
-
+        update_status(reptile_training_id, "Training autoencoder")
         reptile.train_autoencoder(epochs=25000, patience=2500)
             #epochs=250000, patience=25000)
 
-        _ = reptile.diagnose_autoencoder()  # Uses autoencoder reconstructed weights
+        _ = reptile.diagnose_autoencoder(plot_members=True, plot_summary=True,
+                     save_dir=str(base_path / 'reptile_autoencoder_diagnose'))
 
+        """
         # Create a test library with a grid of parameters.
         library_test = toysystems.sine_example(grid=True, **task_params)
 
