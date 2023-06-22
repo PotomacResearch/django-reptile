@@ -35,6 +35,7 @@
                 <th scope="col">Type</th>
                 <th scope="col">Created</th>
                 <th scope="col">Started</th>
+                <th scope="col">Status</th>
                 <th scope="col">Completed</th>
             </tr>
         </thead>
@@ -49,6 +50,7 @@
                 <td>{{ t.type }}</td>
                 <td>{{ t.created }}</td>
                 <td>{{ t.started|default:"--"  }}</td>
+                <td>{{ t.status }} ({{ t.status_timestamp|default:"--" }})</td>
                 <td>{{ t.completed|default:"--" }}</td>
             </tr>
             {% endfor %}

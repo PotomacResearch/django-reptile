@@ -27,6 +27,8 @@ def start_training(reptile_training_id: int
     Starts the training process and sets the started field
     """
     training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj.status = "Started task"
+    training_obj.status_timestamp = now()
     training_obj.started = now()
     training_obj.save()
 
@@ -38,10 +40,26 @@ def start_training(reptile_training_id: int
 
 
 @manage_db_connection
+def update_status(reptile_training_id: int, status: str) -> None:
+    """
+    Updates the DB with the status of the training
+
+    status has to be less than the field length of ReptileTraining.status,
+        which is currently 100 characters
+    """
+    training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj.status = status
+    training_obj.status_timestamp = now()
+    training_obj.save()
+
+
+@manage_db_connection
 def save_training(reptile_training_id: int) -> None:
     """
     Marks the training process complete and save the results
     """
     training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj.status = "Completed"
+    training_obj.status_timestamp = now()
     training_obj.completed = now()
     training_obj.save()
