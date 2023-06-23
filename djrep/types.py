@@ -2,6 +2,7 @@ from django.db import models
 
 class ReptileTypes(models.TextChoices):
     SINE_EXAMPLE = "Sine", "Sine Example"
+    DATA_FILE = "DataFile", "Data File"
 
 
     @classmethod

@@ -51,11 +51,18 @@ class ReptileTrainingForm(ModelForm):
         self.fields['learning_rate'].initial =  0.0001
         self.fields['bounded_latent'].initial = True
 
-    def clean_params(self):
-        params = self.cleaned_data['params']
-        if params is None:
-            params = {}
-        return params
+    def clean(self):
+        cleaned_data = super().clean()
+
+        file_data = self.cleaned_data.get('data_file')
+        train_type = cleaned_data.get('type')
+
+        if train_type == ReptileTypes.SINE_EXAMPLE and file_data:
+            self.add_error('type',
+                   "If type is Sine Example, than no data file can be uploaded")
+        if train_type != ReptileTypes.SINE_EXAMPLE and not file_data:
+            self.add_error('type', "This type of training requires a data file")
+
 
     def save(self, commit=True):
         instance = super().save(commit=False)
