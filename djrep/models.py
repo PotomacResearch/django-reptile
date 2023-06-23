@@ -14,8 +14,6 @@ class ReptileTraining(models.Model):
     params = models.JSONField(blank=True, default=dict)
     type = models.CharField(max_length=20,
                             choices=ReptileTypes.sorted_choices())
-    data_file = models.FileField(blank=True, null=True,
-                                 upload_to='training_sources')
     status = models.CharField(max_length=100, default="Waiting to start")
     status_timestamp = models.DateTimeField(null=True)
 

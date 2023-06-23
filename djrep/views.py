@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 import os
 import base64
+from djrep.reptile import ReptileParams
 
 
 class DashboardView(LoginRequiredMixin, ListView):
@@ -44,16 +45,13 @@ class RunView(LoginRequiredMixin, DetailView):
             graph_str = ''
             graph_path = ReptileTraining.get_base_save_path(self.object.id)\
                                                          / out_dir / out_file
-
-            ReptileTraining.get_base_save_path(self.object.id
-                                   ) / 'reptile_esn_diagnose' / 'summary.png'
             if os.path.exists(graph_path):
                 with open(graph_path, 'rb') as i:
                     graph_str = base64.b64encode(i.read()).decode('utf-8')
             return graph_str
 
         context['esn_graph_image'] = _get_graph_base64_str(
-                                        'reptile_esn_diagnose', 'summary.png')
+                                        ReptileParams.esn_path, 'summary.png')
         context['autoencoder_graph_image'] = _get_graph_base64_str(
-                                'reptile_autoencoder_diagnose', 'summary.png')
+                                ReptileParams.autoencoder_path, 'summary.png')
         return context

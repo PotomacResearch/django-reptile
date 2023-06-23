@@ -36,7 +36,8 @@ def start_training(reptile_training_id: int
             training_obj.params['library'],
             training_obj.params['esn'],
             training_obj.params['autoencoder'],
-            training_obj.data_file.file if training_obj.data_file else None)
+            )
+
 
 
 @manage_db_connection
@@ -48,7 +49,7 @@ def update_status(reptile_training_id: int, status: str) -> None:
         which is currently 100 characters
     """
     training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
-    training_obj.status = status
+    training_obj.status = status[:100]
     training_obj.status_timestamp = now()
     training_obj.save()
 
