@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
+from django.shortcuts import render
 
 
 class DashboardView(LoginRequiredMixin, ListView):
@@ -34,3 +35,6 @@ class RunView(LoginRequiredMixin, DetailView):
 
     def get_queryset(self):
         return ReptileTraining.objects.filter(user=self.request.user)
+    
+def params_view(request):
+    return render(request, 'djrep/params.html')
