@@ -4,8 +4,7 @@ from math import pi
 from huey.contrib.djhuey import task
 
 from djrep.task_helpers import start_training, save_training, update_status
-from djrep.types import ReptileTypes
-from djrep.models import ReptileTraining
+from djrep.models import Reptile
 from djrep.reptile import ReptileParams
 
 
@@ -31,7 +30,7 @@ def run_training_task(reptile_training_id: int) -> None:
         (task_name, task_type, task_params, esn_params,
              autoencoder_params) = start_training(reptile_training_id)
 
-        base_path = ReptileTraining.get_base_save_path(reptile_training_id)
+        base_path = Reptile.get_base_save_path(reptile_training_id)
         os.makedirs(base_path, exist_ok=True)
 
         data_file = base_path / ReptileParams.data_path \
@@ -39,7 +38,8 @@ def run_training_task(reptile_training_id: int) -> None:
 
         # Import here so that Django doesn't require running reptile to serve
         #    the website
-        if task_type == ReptileTypes.SINE_EXAMPLE:
+        #if task_type == ReptileTypes.SINE_EXAMPLE:
+        if False:
             from reptile import toysystems
 
             sine_params = {
@@ -54,7 +54,8 @@ def run_training_task(reptile_training_id: int) -> None:
             }
             library = toysystems.sine_example(**sine_params)
 
-        elif task_type == ReptileTypes.DATA_FILE:
+        elif True:
+        #elif task_type == ReptileTypes.DATA_FILE:
             if os.path.exists(data_file):
                 with data_file.open('rb') as f:
                     print(f.read())

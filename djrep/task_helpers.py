@@ -1,6 +1,6 @@
 from functools import wraps
 from django.db import close_old_connections, connection
-from djrep.models import ReptileTraining
+from djrep.models import Reptile
 from django.utils.timezone import now
 from typing import Tuple, Dict
 
@@ -26,7 +26,7 @@ def start_training(reptile_training_id: int
     """
     Starts the training process and sets the started field
     """
-    training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj = Reptile.objects.get(pk=reptile_training_id)
     training_obj.status = "Started task"
     training_obj.status_timestamp = now()
     training_obj.started = now()
@@ -45,10 +45,10 @@ def update_status(reptile_training_id: int, status: str) -> None:
     """
     Updates the DB with the status of the training
 
-    status has to be less than the field length of ReptileTraining.status,
+    status has to be less than the field length of Reptile.status,
         which is currently 100 characters
     """
-    training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj = Reptile.objects.get(pk=reptile_training_id)
     training_obj.status = status[:100]
     training_obj.status_timestamp = now()
     training_obj.save()
@@ -59,7 +59,7 @@ def save_training(reptile_training_id: int) -> None:
     """
     Marks the training process complete and save the results
     """
-    training_obj = ReptileTraining.objects.get(pk=reptile_training_id)
+    training_obj = Reptile.objects.get(pk=reptile_training_id)
     training_obj.status = "Completed"
     training_obj.status_timestamp = now()
     training_obj.completed = now()

@@ -19,8 +19,9 @@
         </div>
 
         <div class="col-lg-6 mb-4">
-            <h2>Create New Run</h2>
-            <a href="{% url 'new' %}" class="btn btn-primary">Create New Run</a>
+            <h2>Create New</h2>
+            <a href="{% url 'newdataset' %}" class="btn btn-primary">Create New Dataset</a>
+            <a href="{% url 'newreptile' %}" class="btn btn-primary">Create New Reptile</a>
         </div>
     </div>
 
@@ -40,7 +41,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for t in trainings %}
+            {% for t in reptiles %}
             <tr>
                 <td>
                 	<a href="{% url 'view' t.pk %}">

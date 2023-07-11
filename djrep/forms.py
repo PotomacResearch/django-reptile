@@ -1,16 +1,30 @@
-from django import forms
-from django.forms.models import ModelForm
-from djrep.models import ReptileTraining
-from djrep.tasks import run_training_task
-from djrep.types import ReptileTypes
-from djrep.reptile import ReptileParams
 import os
 
+from django import forms
+from django.forms.models import ModelForm
+from djrep.models import Reptile, Dataset
+from djrep.tasks import run_training_task
+from djrep.reptile import ReptileParams
 
 
-class ReptileTrainingForm(ModelForm):
+class DatasetCreateForm(ModelForm):
     data_file = forms.FileField(required=False)
 
+    class Meta:
+        model = Dataset
+        fields = ["name"]
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if commit:
+            instance.save()
+            instance.save_source_csv(self.cleaned_data.get('data_file'))
+
+        return instance
+
+
+class ReptileCreateForm(ModelForm):
     input_dimension = forms.IntegerField(label='ESN Input Dimension')
     size = forms.IntegerField(label='ESN Size')
     connections = forms.IntegerField(label='ESN Connections')
@@ -27,12 +41,11 @@ class ReptileTrainingForm(ModelForm):
     bounded_latent = forms.BooleanField(label='Autoencoder Bounded Latent?')
 
     class Meta:
-        model = ReptileTraining
-        fields = ["name", "type"]
+        model = Reptile
+        fields = ["name", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['type'].initial = ReptileTypes.SINE_EXAMPLE
 
         # ESN
         self.fields['input_dimension'].initial = 2
@@ -50,18 +63,6 @@ class ReptileTrainingForm(ModelForm):
         self.fields['encoder_dim'].initial = 3
         self.fields['learning_rate'].initial =  0.0001
         self.fields['bounded_latent'].initial = True
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        file_data = self.cleaned_data.get('data_file')
-        train_type = cleaned_data.get('type')
-
-        if train_type == ReptileTypes.SINE_EXAMPLE and file_data:
-            self.add_error('type',
-                   "If type is Sine Example, than no data file can be uploaded")
-        if train_type != ReptileTypes.SINE_EXAMPLE and not file_data:
-            self.add_error('type', "This type of training requires a data file")
 
 
     def save(self, commit=True):
@@ -85,7 +86,7 @@ class ReptileTrainingForm(ModelForm):
         if commit:
             instance.save()
             if file_data:
-                training_dir = ReptileTraining.get_base_save_path(
+                training_dir = Reptile.get_base_save_path(
                                         instance.id) / ReptileParams.data_path
                 os.makedirs(training_dir, exist_ok=True)
                 with open(training_dir / ReptileParams.datafile_name,
