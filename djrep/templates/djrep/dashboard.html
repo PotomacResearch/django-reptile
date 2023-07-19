@@ -26,7 +26,7 @@
     </div>
 
 	<div class="row">
-		<h2>Runs</h2>
+		<h2>Reptile Models</h2>
 	</div>
 
     <table class="table table-striped">
@@ -44,7 +44,7 @@
             {% for t in reptiles %}
             <tr>
                 <td>
-                	<a href="{% url 'view' t.pk %}">
+                	<a href="{% url 'reptileview' t.pk %}">
 						{{ t.id }}: {{ t.name }}
 					</a>
                 </td>
@@ -67,11 +67,26 @@
 
     <div class="row">
         <div class="col-lg-6 mb-4">
-            <h2>Statistics</h2>
             <div class="card">
                 <div class="card-body">
+					<h2>Statistics</h2>
                     Total Runs: {{ stats.total_runs }}<br/>
                     Average Run Time: {{ stats.average_run_time }}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                	<div class="row">
+                		<div class="col-sm-6">
+							<a href="{% url 'datasets' %}" class="btn btn-primary">
+								View Datasets</a>
+                		</div>
+                		<div class="col-sm-6">
+                			Datasets: {{ dataset_count }}
+                		</div>
+                    </div>
                 </div>
             </div>
         </div>

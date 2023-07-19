@@ -1,23 +1,19 @@
+import os
 from pathlib import Path
 
 from django.db import models
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
-import os
 
 
 class Dataset(models.Model):
     name = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     params = models.JSONField(blank=True, default=dict)
+    original_filename = models.CharField()
 
     user = models.ForeignKey(
         "account.User",
-        models.CASCADE,
-        related_name="datasets",
-    )
-    account = models.ForeignKey(
-        "account.Account",
         models.CASCADE,
         related_name="datasets",
     )
@@ -52,11 +48,6 @@ class Reptile(models.Model):
     )
     user = models.ForeignKey(
         "account.User",
-        models.CASCADE,
-        related_name="reptiles",
-    )
-    account = models.ForeignKey(
-        "account.Account",
         models.CASCADE,
         related_name="reptiles",
     )

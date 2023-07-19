@@ -8,7 +8,7 @@ from djrep.reptile import ReptileParams
 
 
 class DatasetCreateForm(ModelForm):
-    data_file = forms.FileField(required=False)
+    data_file = forms.FileField()
 
     class Meta:
         model = Dataset
@@ -18,6 +18,7 @@ class DatasetCreateForm(ModelForm):
         instance = super().save(commit=False)
 
         if commit:
+            instance.original_filename = self.cleaned_data.get('data_file').name
             instance.save()
             instance.save_source_csv(self.cleaned_data.get('data_file'))
 
@@ -42,7 +43,7 @@ class ReptileCreateForm(ModelForm):
 
     class Meta:
         model = Reptile
-        fields = ["name", ]
+        fields = ["name", "dataset"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

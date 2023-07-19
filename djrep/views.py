@@ -17,47 +17,67 @@ class DashboardView(LoginRequiredMixin, ListView):
     context_object_name = "reptiles"
 
     def get_queryset(self):
-        return super().get_queryset()\
-                        .filter(user=self.request.user).order_by('-id')
+        return super().get_queryset().filter(
+                            user__account=self.request.user.account
+                        ).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['datasets'] = Dataset.objects.filter(
-                                    account=self.request.user.account
-                                    ).order_by('-id')
+        context['dataset_count'] = Dataset.objects.filter(
+                                    user__account=self.request.user.account
+                                                        ).count()
         return context
 
 
 class NewDatasetView(LoginRequiredMixin, CreateView):
     model = Dataset
     form_class = DatasetCreateForm
-    template_name = "djrep/new_dataset.html"
+    template_name = "djrep/dataset_new.html"
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.account = self.request.user.account
         return super().form_valid(form)
+
+
+class DatasetOverviewView(LoginRequiredMixin, ListView):
+    model = Dataset
+    template_name = "djrep/view_dataset.html"
+    context_object_name = "datasets"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(
+                            user__account=self.request.user.account
+                        ).order_by('-id')
+
+
+class DatasetView(LoginRequiredMixin, DetailView):
+    model = Dataset
+    template_name = 'djrep/dataset_view.html'
+    context_object_name = "dataset"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(
+                        user__account=self.request.user.account)
 
 
 class NewReptileView(LoginRequiredMixin, CreateView):
     model = Reptile
     form_class = ReptileCreateForm
-    template_name = "djrep/new_reptile.html"
+    template_name = "djrep/reptile_new.html"
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.account = self.request.user.account
         return super().form_valid(form)
 
 
 class ReptileView(LoginRequiredMixin, DetailView):
     model = Reptile
-    template_name = 'djrep/view_reptile.html'
+    template_name = 'djrep/reptile_view.html'
 
     def get_queryset(self):
-        return Reptile.objects.filter(user=self.request.user)
+        return Reptile.objects.filter(user__account=self.request.user.account)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

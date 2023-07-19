@@ -1,0 +1,45 @@
+{% extends 'loggedin.html' %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}Dataset List{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <h2>Datasets</h2>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <a href="{% url 'newdataset' %}" class="btn btn-primary">
+            	Create New Dataset</a>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Filename</th>
+                <th scope="col">Created</th>
+                <th scope="col">Parameters</th>
+                <th scope="col">Used By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in datasets %}
+            <tr>
+                <td>
+                	<a href="{% url 'datasetview' d.pk %}">
+						{{ d.name }}
+					</a>
+                </td>
+                <td>{{ d.original_filename }}</td>
+                <td>{{ d.created }}</td>
+                <td>{{ d.params }}</td>
+                <td>{{ d.reptiles|length }}td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

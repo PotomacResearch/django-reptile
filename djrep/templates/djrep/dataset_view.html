@@ -1,0 +1,28 @@
+{% extends 'loggedin.html' %}
+
+{% load django_bootstrap5 %}
+
+{% block title %}View Dataset{% endblock %}
+
+{% block body %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Filename</th>
+                <th scope="col">Created</th>
+                <th scope="col">Params</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ dataset.id }}</td>
+                <td>{{ dataset.name }}</td>
+                <td>{{ dataset.original_filename }}</td>
+                <td>{{ object.created }}</td>
+                <td>{{ dataset.params }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
