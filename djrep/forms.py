@@ -5,6 +5,8 @@ from django.forms.models import ModelForm
 from djrep.models import Reptile, Dataset
 from djrep.tasks import run_training_task
 from djrep.reptile import ReptileParams
+import csv
+import io
 
 
 class DatasetCreateForm(ModelForm):
@@ -12,7 +14,31 @@ class DatasetCreateForm(ModelForm):
 
     class Meta:
         model = Dataset
-        fields = ["name"]
+        fields = ["name", "members", "inputs", "outputs"]
+
+
+    def clean_data_file(self):
+        n_cols = self.cleaned_data.get('members') * (
+                      self.cleaned_data.get('inputs')
+                      + self.cleaned_data.get('outputs'))
+
+        csv_file = self.cleaned_data.get('data_file')
+
+        try:
+            # Check file contents
+            reader = csv.reader(io.StringIO(csv_file.read().decode('UTF-8')))
+            next(reader) # skip the first row
+            for row in reader:
+                row_len = len([float(f) for f in row])
+                if  row_len != n_cols:
+                    raise ValueError(
+                        f'Bad number of rows: {row_len} (should be {n_cols})'
+                    )
+        except Exception as e:
+            raise forms.ValidationError(f'Error processing CSV file: {e}')
+
+        csv_file.seek(0)
+        return csv_file
 
     def save(self, commit=True):
         instance = super().save(commit=False)

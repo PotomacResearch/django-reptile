@@ -4,6 +4,7 @@ from pathlib import Path
 from django.db import models
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.validators import MinValueValidator
 
 
 class Dataset(models.Model):
@@ -11,6 +12,12 @@ class Dataset(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     params = models.JSONField(blank=True, default=dict)
     original_filename = models.CharField()
+    members = models.IntegerField(validators=[MinValueValidator(1)],
+                                  verbose_name="Number of Library Members")
+    inputs = models.IntegerField(validators=[MinValueValidator(1)],
+                                 verbose_name="Number of Inputs")
+    outputs = models.IntegerField(validators=[MinValueValidator(0)],
+                                  verbose_name="Number of Outputs")
 
     user = models.ForeignKey(
         "account.User",

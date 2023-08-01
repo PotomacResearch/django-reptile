@@ -5,15 +5,42 @@
 {% block title %}New Dataset{% endblock %}
 
 {% block body %}
-
-    <div class="row">
-    	<div class="col-12">
-		  <form method="post" enctype="multipart/form-data">
-			{% csrf_token %}
-			{% bootstrap_form form %}
-			{% bootstrap_button button_type="submit" content="Create New Dataset" %}
-		  </form>
-		</div>
-    </div>
-
+<div class="row">
+	<div class="col-12">
+		<p>
+			Datasets consist of a CSV file containing library member inputs
+				and outputs.
+			The format of a CSV file is as follows:
+			<pre>
+			MEMBER1_IN1,MEMBER1_IN2,...,MEMBER1_OUT1,MEMBER1_OUT2,...,MEMBERN_IN1,...
+			(   data  ),(   data  ),...,(  data    ), (   data  ),...,(   data  ),...
+			(   data  ),(   data  ),...,(  data    ), (   data  ),...,(   data  ),...
+			(   data  ),(   data  ),...,(  data    ), (   data  ),...,(   data  ),...
+			</pre>
+		</p>
+		<p>
+			Current restrictions:
+		</p>
+		<ul>
+			<li>The first row is always headers (and will be discarded)
+			</li>
+			<li>The separators are always <strong>,</strong>
+			</li>
+			<li>All members must have the same number of datapoints.
+				Excess datapoints will be cut off.
+			</li>
+			<li>All members must have the same number of inputs / outputs,
+				so the number of columns in the CSV should be
+				<pre>N_members * N_inputs * N_outputs</pre>
+			</li>
+		</ul>
+	</div>
+	<div class="col-12">
+	  <form method="post" enctype="multipart/form-data">
+		{% csrf_token %}
+		{% bootstrap_form form %}
+		{% bootstrap_button button_type="submit" content="Create New Dataset" %}
+	  </form>
+	</div>
+</div>
 {% endblock %}
