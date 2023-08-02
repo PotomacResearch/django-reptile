@@ -22,6 +22,9 @@
                 <th scope="col">Name</th>
                 <th scope="col">Filename</th>
                 <th scope="col">Created</th>
+                <th scope="col">Members</th>
+                <th scope="col">Inputs</th>
+                <th scope="col">Outputs</th>
                 <th scope="col">Parameters</th>
                 <th scope="col">Used By</th>
             </tr>
@@ -36,8 +39,11 @@
                 </td>
                 <td>{{ d.original_filename }}</td>
                 <td>{{ d.created }}</td>
+                <td>{{ d.members }}</td>
+                <td>{{ d.inputs }}</td>
+                <td>{{ d.outputs }}</td>
                 <td>{{ d.params }}</td>
-                <td>{{ d.reptiles|length }}td>
+                <td>{{ d.reptiles|length }}</td>
             </tr>
             {% endfor %}
         </tbody>

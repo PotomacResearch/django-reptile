@@ -38,6 +38,9 @@ class Dataset(models.Model):
             for chunk in csv_file.chunks():
                 f.write(chunk)
 
+    def get_source_csv_path(self) -> Path:
+        return self._get_base_path() / 'data.csv'
+
 
 class Reptile(models.Model):
     name = models.CharField(max_length=100)

@@ -5,24 +5,67 @@
 {% block title %}View Dataset{% endblock %}
 
 {% block body %}
+	<h1>Dataset: {{ dataset.name }}</h1>
     <table class="table table-striped">
         <thead>
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Filename</th>
+                <th scope="col">Library Members</th>
+                <th scope="col">Number of Inputs</th>
+                <th scope="col">Number of Outputs</th>
+                <th scope="col">Extra Params</th>
                 <th scope="col">Created</th>
-                <th scope="col">Params</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>{{ dataset.id }}</td>
                 <td>{{ dataset.name }}</td>
-                <td>{{ dataset.original_filename }}</td>
-                <td>{{ object.created }}</td>
+                <td>
+                	<a href="{% url 'datasetdownload' dataset.pk %}">
+						{{ dataset.original_filename }}
+					</a>
+                </td>
+                <td>{{ dataset.members }}</td>
+                <td>{{ dataset.inputs }}</td>
+                <td>{{ dataset.outputs }}</td>
                 <td>{{ dataset.params }}</td>
+                <td>{{ dataset.created }}</td>
             </tr>
+        </tbody>
+    </table>
+
+    <br />
+    <br />
+
+	<h3>Reptiles That Use {{ dataset.name }}</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Params</th>
+                <th scope="col">Created</th>
+                <th scope="col">Started</th>
+                <th scope="col">Status</th>
+                <th scope="col">Completed</th>
+            </tr>
+        </thead>
+        <tbody>
+        	{% for r in dataset.reptiles.all %}
+				<tr>
+					<td>{{ r.id }}: {{ r.name }}</td>
+					<td>{{ r.type }}</td>
+					<td>{{ r.params }}</td>
+					<td>{{ r.created }}</td>
+					<td>{{ r.started|default:"--"  }}</td>
+					<td>{{ r.status }}
+						({{ r.status_timestamp|default:"--" }})</td>
+					<td>{{ r.completed|default:"--" }}</td>
+				</tr>
+            {% endfor %}
         </tbody>
     </table>
 {% endblock %}

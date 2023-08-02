@@ -1,6 +1,6 @@
 from django.urls import path
 from djrep.views import DashboardView, NewReptileView, ReptileView,\
-    NewDatasetView, DatasetOverviewView, DatasetView
+    NewDatasetView, DatasetOverviewView, DatasetView, DatasetFileDownloadview
 
 
 urlpatterns = [
@@ -10,4 +10,6 @@ urlpatterns = [
     path('datasets', DatasetOverviewView.as_view(), name='datasets'),
     path('reptileview/<int:pk>/', ReptileView.as_view(), name='reptileview'),
     path('datasetview/<int:pk>/', DatasetView.as_view(), name='datasetview'),
+    path('datasetdownload/<int:pk>', DatasetFileDownloadview.as_view(),
+                                     name='datasetdownload')
 ]

@@ -18,6 +18,10 @@ class DatasetCreateForm(ModelForm):
 
 
     def clean_data_file(self):
+        """
+        Check that the data file passes basic sanity checks
+        Probably should move this to the model, as a class method
+        """
         n_cols = self.cleaned_data.get('members') * (
                       self.cleaned_data.get('inputs')
                       + self.cleaned_data.get('outputs'))
