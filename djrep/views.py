@@ -83,6 +83,11 @@ class NewReptileView(LoginRequiredMixin, CreateView):
     template_name = "djrep/reptile_new.html"
     success_url = reverse_lazy('dashboard')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         return super().form_valid(form)

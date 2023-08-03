@@ -1,5 +1,4 @@
 import os
-from math import pi
 
 from huey.contrib.djhuey import task
 
@@ -27,48 +26,52 @@ def run_training_task(reptile_training_id: int) -> None:
         - Save any intermediate data in a unique dir
     """
     try:
-        (task_name, task_type, task_params, esn_params,
-             autoencoder_params) = start_training(reptile_training_id)
+        (task_name, library_params, esn_params, autoencoder_params,
+         data_file_path, dataset_params) = start_training(reptile_training_id)
 
         base_path = Reptile.get_base_save_path(reptile_training_id)
         os.makedirs(base_path, exist_ok=True)
 
-        data_file = base_path / ReptileParams.data_path \
-                                                / ReptileParams.datafile_name
-
-        # Import here so that Django doesn't require running reptile to serve
-        #    the website
-        #if task_type == ReptileTypes.SINE_EXAMPLE:
-        if False:
-            from reptile import toysystems
-
-            sine_params = {
-                'num_series': 100,
-                'length_series': 1100,
-                'amplitude_low': 0.1,
-                'amplitude_high': 5.0,
-                'frequency_low': 1.0,
-                'frequency_high': 1.0,
-                'phase_low': 0,
-                'phase_high': pi,
-            }
-            library = toysystems.sine_example(**sine_params)
-
-        elif True:
-        #elif task_type == ReptileTypes.DATA_FILE:
-            if os.path.exists(data_file):
-                with data_file.open('rb') as f:
-                    print(f.read())
-
-            raise NotImplementedError("Library loading not implemented")
-
-        else:
-            raise NotImplementedError(f"Not implemented: {task_type}")
-
-        from reptile.reptile import Autoencoder, RepTiLe
+        # Imports inside the function so that Django doesn't require running
+        #    reptile/numpy/whatever to serve the website
+        import numpy as np
         import rescompy
+        from reptile.reptile import Autoencoder, RepTiLe, Library
 
-        library.save(str(base_path / ReptileParams.library_path), False)
+
+        #if task_type == ReptileTypes.SINE_EXAMPLE:
+        '''
+        if False:
+        from reptile import toysystems
+
+        sine_params = {
+            'num_series': 100,
+            'length_series': 1100,
+            'amplitude_low': 0.1,
+            'amplitude_high': 5.0,
+            'frequency_low': 1.0,
+            'frequency_high': 1.0,
+            'phase_low': 0,
+            'phase_high': pi,
+        }
+        library = toysystems.sine_example(**sine_params)
+        '''
+
+        # In data in columns, with last column as time
+        data = np.genfromtxt(data_file_path, delimiter=',')
+
+        # Reshape to rows, keep one for testing, take out time
+        # data[5][2][7] = timepoint 5, dimension 2, library member 7
+        num_test_data = 0
+        train_data = data[:,:-(num_test_data+1)].T
+        num_train_data = train_data.shape[0]
+        test_data = data[:,-(num_test_data+1):-1].T
+        time_data = data[:, -1].T
+
+        lib = Library(train_data, t=time_data, name='reptilelibrary')
+        #lib.plot_series([i for i in range(num_train_data)])
+
+        lib.save(str(base_path / ReptileParams.library_path), False)
 
         default_esn_params = {
             'input_dimension': 2,
@@ -78,6 +81,9 @@ def run_training_task(reptile_training_id: int) -> None:
             'input_strength': 0.25,
             'bias_strength': 1.5,
             'leaking_rate': 0.014,
+
+            'transient_length': 100,
+            'reg': 1e-1,
         }
         default_esn_params.update(esn_params)
         esn = rescompy.ESN(**default_esn_params)
@@ -88,64 +94,71 @@ def run_training_task(reptile_training_id: int) -> None:
             'encoder_dim': 3,
             'learning_rate': 0.0001,
             'bounded_latent': True,
+
+            'epochs': 25000,
+            'patience': 2500,
         }
         default_autoencoder_params.update(autoencoder_params)
         autoencoder = Autoencoder(**default_autoencoder_params)
-        reptile = RepTiLe(library, esn, autoencoder, 't')
 
+        reptile = RepTiLe(lib, esn, autoencoder, 't')
         reptile.save(str(base_path / ReptileParams.reptile_path), False)
-
 
         # Trains the ESN on each library member and accumulates weight matrices
         update_status(reptile_training_id, "Created RepTile, training ESN")
-        reptile.train_library(transient_length=100, reg=1e-1)
+        reptile.train_library(**default_esn_params)
 
-        # Runs a prediction on each library member, compare to original
-        update_status(reptile_training_id,
-                      "Trained ESN, checking performance")
-        _ = reptile.diagnose_library(num_diagnose_series=10,
-                     plot_members=True,
-                     plot_summary=True,
-                     save_dir=str(base_path / ReptileParams.esn_path))
+        update_status(reptile_training_id, "Trained ESN, checking performance")
+        _ = reptile.diagnose_library(num_diagnose_series=num_train_data,
+                             plot_members=True,
+                             plot_summary=True,
+                             save_dir=str(base_path / ReptileParams.esn_path))
 
         update_status(reptile_training_id, "Training autoencoder")
-        reptile.train_autoencoder(epochs=25000, patience=2500)
+
+        reptile.train_autoencoder(**default_autoencoder_params)
             #epochs=250000, patience=25000)
 
         _ = reptile.diagnose_autoencoder(plot_members=True,
                  plot_summary=True,
                  save_dir=str(base_path / ReptileParams.autoencoder_path))
 
-        """
-        # Create a test library with a grid of parameters.
-        library_test = toysystems.sine_example(grid=True, **task_params)
 
+        '''
+        lib_test = Library(test_data, t=time_data, name='testcsv')
+        lib_test.plot_series([i for i in range(num_test_data)])
+
+        # Try 'interpolation' mode first, where observations are randomly sampled.
+        # Use the sample method to generate observations.
+        # The predict method returns a rescompy.predict_result object, which we can use
+        # to analyze further, but we are just going to plot the results.
         results = list()
-        for i in range(100):
-            observations = library_test.sample(num_samples=100,
-                                               prediction=True,
-                                               index=i,
-                                               transient_length=100)
-            results.append(
-                reptile.predict(observations=observations,
-                                ground_truth=library_test.data[i],
-                                )
-                           )
+        for i in range(num_test_data):
+            index = i
+            observations = lib_test.sample(num_samples=100,
+                                           #prediction=True,
+                                           index=index,
+                                           transient_length=100)
+            results.append(reptile.predict(observations=observations,
+                                           ground_truth=lib_test.data[index],
+                                           plot=True))
 
-        for i in range(100):
-            observations = library_test.sample(num_samples=50,
-                                               prediction=True,
-                                               index=i,
-                                               transient_length=100)
+        # Next, try setting prediction=True.
+        for i in range(num_test_data):
+            index = i
+            observations = lib_test.sample(num_samples=50,
+                                           prediction=True,
+                                           index=index,
+                                           transient_length=100)
             _ = reptile.predict(observations=observations,
-                                ground_truth=library_test.data[i],
-                                )
+                                             ground_truth=lib_test.data[index],
+                                             plot=True)
 
-        reptile.add_note('Fully trained')
-        reptile.save(f'sine_reptile_{reptile_training_id}', False)
-        """
+        reptile.save('tested_reptile', False)
 
-        print(f'{task_name} completed training {type}: {library}')
+        '''
+
+        print(f'{task_name} completed training {type}: {lib}')
 
         save_training(reptile_training_id)
 

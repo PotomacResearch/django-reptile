@@ -1,10 +1,12 @@
 import os
+from io import StringIO
 from pathlib import Path
 
 from django.db import models
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.validators import MinValueValidator
+import csv
 
 
 class Dataset(models.Model):
@@ -18,6 +20,7 @@ class Dataset(models.Model):
                                  verbose_name="Number of Inputs")
     outputs = models.IntegerField(validators=[MinValueValidator(0)],
                                   verbose_name="Number of Outputs")
+    deleted = models.BooleanField(default=False)
 
     user = models.ForeignKey(
         "account.User",
@@ -40,6 +43,27 @@ class Dataset(models.Model):
 
     def get_source_csv_path(self) -> Path:
         return self._get_base_path() / 'data.csv'
+
+    @staticmethod
+    def check_data_file(file_obj: StringIO,
+                        n_members: int, n_inputs: int, n_outputs: int) -> bool:
+        """
+        Check that a given data file passes sanity checks to be a valid source
+        Raises an Exception if doesn't pass
+        """
+        n_cols = n_members * (n_inputs + n_outputs)
+
+        # Check file contents
+        reader = csv.reader(file_obj)
+        next(reader) # skip the first row
+        for row in reader:
+            row_len = len([float(f) for f in row])
+            if  row_len != n_cols:
+                raise ValueError(
+                    f'Bad number of rows: {row_len} (should be {n_cols})'
+                )
+
+        return True
 
 
 class Reptile(models.Model):

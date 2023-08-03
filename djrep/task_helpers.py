@@ -3,6 +3,7 @@ from django.db import close_old_connections, connection
 from djrep.models import Reptile
 from django.utils.timezone import now
 from typing import Tuple, Dict
+from pathlib import Path
 
 
 def manage_db_connection(func):
@@ -22,7 +23,11 @@ def manage_db_connection(func):
 
 @manage_db_connection
 def start_training(reptile_training_id: int
-                   ) -> Tuple[str, str, Dict[str, str]]:
+                   ) -> Tuple[str,
+                              Dict[str, str],
+                              Dict[str, str],
+                              Dict[str, str],
+                              Path]:
     """
     Starts the training process and sets the started field
     """
@@ -32,12 +37,12 @@ def start_training(reptile_training_id: int
     training_obj.started = now()
     training_obj.save()
 
-    return (training_obj.name, training_obj.type,
+    return (training_obj.name,
             training_obj.params['library'],
             training_obj.params['esn'],
             training_obj.params['autoencoder'],
-            )
-
+            training_obj.dataset.get_source_csv_path(),
+           )
 
 
 @manage_db_connection

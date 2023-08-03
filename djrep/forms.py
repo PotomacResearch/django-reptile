@@ -1,12 +1,12 @@
-import os
+import csv
+import io
 
 from django import forms
 from django.forms.models import ModelForm
+from django.db.models.functions.text import Lower
+
 from djrep.models import Reptile, Dataset
 from djrep.tasks import run_training_task
-from djrep.reptile import ReptileParams
-import csv
-import io
 
 
 class DatasetCreateForm(ModelForm):
@@ -20,24 +20,15 @@ class DatasetCreateForm(ModelForm):
     def clean_data_file(self):
         """
         Check that the data file passes basic sanity checks
-        Probably should move this to the model, as a class method
         """
-        n_cols = self.cleaned_data.get('members') * (
-                      self.cleaned_data.get('inputs')
-                      + self.cleaned_data.get('outputs'))
-
         csv_file = self.cleaned_data.get('data_file')
 
         try:
-            # Check file contents
-            reader = csv.reader(io.StringIO(csv_file.read().decode('UTF-8')))
-            next(reader) # skip the first row
-            for row in reader:
-                row_len = len([float(f) for f in row])
-                if  row_len != n_cols:
-                    raise ValueError(
-                        f'Bad number of rows: {row_len} (should be {n_cols})'
-                    )
+            file_obj = io.StringIO(csv_file.read().decode('UTF-8'))
+            Dataset.check_data_file(file_obj,
+                                    self.cleaned_data.get('members'),
+                                    self.cleaned_data.get('inputs'),
+                                    self.cleaned_data.get('outputs'))
         except Exception as e:
             raise forms.ValidationError(f'Error processing CSV file: {e}')
 
@@ -76,7 +67,12 @@ class ReptileCreateForm(ModelForm):
         fields = ["name", "dataset"]
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
+
+        self.fields['dataset'].queryset = Dataset.objects.filter(
+                user__account=user.account).annotate(lower_name=Lower('name')
+                                                     ).order_by('lower_name')
 
         # ESN
         self.fields['input_dimension'].initial = 2
@@ -112,18 +108,8 @@ class ReptileCreateForm(ModelForm):
         instance.params['autoencoder']['hidden_dim'] = \
             [self.cleaned_data['hidden_dim1'], self.cleaned_data['hidden_dim2']]
 
-        file_data = self.cleaned_data.get('data_file')
-
         if commit:
             instance.save()
-            if file_data:
-                training_dir = Reptile.get_base_save_path(
-                                        instance.id) / ReptileParams.data_path
-                os.makedirs(training_dir, exist_ok=True)
-                with open(training_dir / ReptileParams.datafile_name,
-                          'wb') as f:
-                    for chunk in file_data.chunks():
-                        f.write(chunk)
             run_training_task(instance.id)
 
         return instance
